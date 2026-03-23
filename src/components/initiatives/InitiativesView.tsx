@@ -5,9 +5,6 @@ import { toast } from '@/components/ui/use-toast';
 import InitiativesList from './InitiativesList';
 import InitiativeDetail from './InitiativeDetail';
 import CreateInitiativeDialog from './CreateInitiativeDialog';
-import InitiativesList from './InitiativesList';
-import InitiativeDetail from './InitiativeDetail';
-import CreateInitiativeDialog from './CreateInitiativeDialog';
 
 interface InitiativeWithStages {
   initiative: DbInitiative;
@@ -23,7 +20,6 @@ const InitiativesView: React.FC = () => {
   const [initiativeData, setInitiativeData] = useState<InitiativeWithStages | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   // Load initiatives on mount
