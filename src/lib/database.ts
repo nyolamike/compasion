@@ -272,6 +272,37 @@ export interface DbLinkAnalytics {
   updated_at?: string;
 }
 
+// CIUG Initiatives Module
+export interface DbInitiative {
+  id: string;
+  name: string;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbInitiativeStage {
+  id: string;
+  initiative_id: string;
+  stage_name: 'PLAN' | 'IMPLEMENT' | 'EVALUATE' | 'CLOSE';
+  stage_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbInitiativeTask {
+  id: string;
+  stage_id: string;
+  task_name: string;
+  comment: string;
+  responsible: string;
+  accountable: string;
+  consulted: string;
+  informed: string;
+  created_at: string;
+  updated_at: string;
+}
+
 
 // Database service class
 class DatabaseService {
@@ -1417,6 +1448,144 @@ class DatabaseService {
     });
 
     return stats;
+  }
+
+  // ============ CIUG INITIATIVES MODULE METHODS ============
+
+  // Initiatives
+  async getInitiatives(): Promise<DbInitiative[]> {
+    const { data, error } = await supabase
+      .from('initiatives')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  }
+
+  async getInitiativeById(id: string): Promise<DbInitiative | null> {
+    const { data, error } = await supabase
+      .from('initiatives')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error) return null;
+    return data;
+  }
+
+  async createInitiative(initiative: Omit<DbInitiative, 'id' | 'created_at' | 'updated_at'>): Promise<DbInitiative> {
+    const { data, error } = await supabase
+      .from('initiatives')
+      .insert(initiative)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  async updateInitiative(id: string, updates: Partial<DbInitiative>): Promise<DbInitiative> {
+    const { data, error } = await supabase
+      .from('initiatives')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  async deleteInitiative(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('initiatives')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+  }
+
+  // Initiative Stages
+  async getStagesByInitiativeId(initiativeId: string): Promise<DbInitiativeStage[]> {
+    const { data, error } = await supabase
+      .from('initiative_stages')
+      .select('*')
+      .eq('initiative_id', initiativeId)
+      .order('stage_order', { ascending: true });
+    if (error) throw error;
+    return data || [];
+  }
+
+  async createInitiativeStage(stage: Omit<DbInitiativeStage, 'id' | 'created_at' | 'updated_at'>): Promise<DbInitiativeStage> {
+    const { data, error } = await supabase
+      .from('initiative_stages')
+      .insert(stage)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  // Initiative Tasks
+  async getTasksByStageId(stageId: string): Promise<DbInitiativeTask[]> {
+    const { data, error } = await supabase
+      .from('initiative_tasks')
+      .select('*')
+      .eq('stage_id', stageId)
+      .order('created_at', { ascending: true });
+    if (error) throw error;
+    return data || [];
+  }
+
+  async createInitiativeTask(task: Omit<DbInitiativeTask, 'id' | 'created_at' | 'updated_at'>): Promise<DbInitiativeTask> {
+    const { data, error } = await supabase
+      .from('initiative_tasks')
+      .insert(task)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  async updateInitiativeTask(id: string, updates: Partial<DbInitiativeTask>): Promise<DbInitiativeTask> {
+    const { data, error } = await supabase
+      .from('initiative_tasks')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  async deleteInitiativeTask(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('initiative_tasks')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+  }
+
+  // Convenience method for loading complete initiative data
+  async getInitiativeWithStagesAndTasks(initiativeId: string): Promise<{
+    initiative: DbInitiative;
+    stages: Array<DbInitiativeStage & { tasks: DbInitiativeTask[] }>;
+  }> {
+    const initiative = await this.getInitiativeById(initiativeId);
+    if (!initiative) {
+      throw new Error('Initiative not found');
+    }
+
+    const stages = await this.getStagesByInitiativeId(initiativeId);
+    
+    // Load tasks for each stage
+    const stagesWithTasks = await Promise.all(
+      stages.map(async (stage) => {
+        const tasks = await this.getTasksByStageId(stage.id);
+        return { ...stage, tasks };
+      })
+    );
+
+    return {
+      initiative,
+      stages: stagesWithTasks,
+    };
   }
 }
 

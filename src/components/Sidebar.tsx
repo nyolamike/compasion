@@ -41,6 +41,7 @@ const Sidebar: React.FC = () => {
     { id: 'attendance', label: 'Attendance', icon: <ClipboardIcon size={20} />, roles: ['administrator', 'coordinator', 'facilitator'] },
     { id: 'evaluation', label: 'Evaluation', icon: <ClipboardIcon size={20} />, roles: ['administrator', 'manager', 'coordinator', 'facilitator'] },
     { id: 'participants', label: 'Participants', icon: <UsersIcon size={20} />, roles: ['administrator', 'manager', 'coordinator'] },
+    { id: 'initiatives', label: 'CIUG Initiatives', icon: <TargetIcon size={20} />, roles: ['administrator', 'manager', 'coordinator'] },
     { id: 'approvals', label: 'Approvals', icon: <ChartIcon size={20} />, roles: ['administrator', 'manager'], badge: pendingApprovals },
     { id: 'reports', label: 'Reports', icon: <ChartIcon size={20} />, roles: ['administrator', 'manager', 'coordinator'] },
     { id: 'settings', label: 'Settings', icon: <SettingsIcon size={20} />, roles: ['administrator'] },

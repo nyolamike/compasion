@@ -14,6 +14,7 @@ import FacilitiesManagement from './facilities/FacilitiesManagement';
 import TrainingNeeds from './needs/TrainingNeeds';
 import ReportsModule from './reports/ReportsModule';
 import EvaluationModule from './evaluation/EvaluationModule';
+import InitiativesView from './initiatives/InitiativesView';
 
 const AppContent: React.FC = () => {
   const { currentView, isLoading, error } = useApp();
@@ -65,6 +66,8 @@ const AppContent: React.FC = () => {
         return <EvaluationModule />;
       case 'participants':
         return <ParticipantsDirectory />;
+      case 'initiatives':
+        return <InitiativesView />;
       case 'approvals':
         return <ApprovalsQueue />;
       case 'reports':
